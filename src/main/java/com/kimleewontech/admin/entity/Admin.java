@@ -1,6 +1,8 @@
 package com.kimleewontech.admin.entity;
 
-import com.kimleewontech.admin.enmus.AdminLevel;
+import com.kimleewontech.admin.enums.AdminLevel;
+import com.kimleewontech.common.entity.BaseEntity;
+import com.kimleewontech.user.entity.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,7 +23,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "admins")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Admin extends BaseEntity{
+public class Admin extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,7 +34,7 @@ public class Admin extends BaseEntity{
 	private User user;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "admin_Level", nullable = false, length = 20)
+	@Column(name = "admin_level", nullable = false, length = 20)
 	private AdminLevel adminLevel;
 
 	private Admin(User user, AdminLevel adminLevel) {

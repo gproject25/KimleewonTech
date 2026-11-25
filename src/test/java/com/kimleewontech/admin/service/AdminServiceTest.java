@@ -11,8 +11,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.kimleewontech.admin.enmus.AdminLevel;
 import com.kimleewontech.admin.entity.Admin;
+import com.kimleewontech.admin.enums.AdminLevel;
 import com.kimleewontech.admin.repository.AdminRepository;
 
 @ExtendWith(MockitoExtension.class)

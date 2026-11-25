@@ -5,8 +5,8 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kimleewontech.admin.enmus.AdminLevel;
 import com.kimleewontech.admin.entity.Admin;
+import com.kimleewontech.admin.enums.AdminLevel;
 import com.kimleewontech.admin.repository.AdminRepository;
 
 import lombok.RequiredArgsConstructor;
