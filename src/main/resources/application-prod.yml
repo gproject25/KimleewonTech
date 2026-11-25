@@ -1,0 +1,23 @@
+spring:
+  config:
+    import: #
+
+  #RDS 용
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate      # never let Hibernate change prod tables
+
+management:
+  info:
+    env:
+      enabled: true
+
+logging:
+  level:
+    root: INFO
