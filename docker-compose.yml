@@ -8,8 +8,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 1234
       MYSQL_DATABASE: kimleewontech
-      MYSQL_USER: root
-      MYSQL_PASSWORD: 1234
       TZ: Asia/Seoul
     command:
       - --character-set-server=utf8mb4
