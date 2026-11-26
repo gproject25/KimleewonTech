@@ -30,7 +30,7 @@ public class Admin extends BaseEntity {
 	private Long id;
 
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id", nullable = false, unique = true)
+	@JoinColumn(name = "user_id", unique = true)
 	private User user;
 
 	@Enumerated(EnumType.STRING)

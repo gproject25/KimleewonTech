@@ -8,7 +8,7 @@ import com.kimleewontech.admin.entity.Admin;
 
 public interface AdminRepository extends JpaRepository<Admin, Long> {
 
-	boolean existsByUserId(Long userId);
+	boolean existsByUserIdAndDeletedAtIsNull(Long userId);
 
-	Optional<Admin> findByUserId(Long userId);
+	Optional<Admin> findByUserIdAndDeletedAtIsNull(Long userId);
 }

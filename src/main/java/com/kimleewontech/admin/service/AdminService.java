@@ -19,10 +19,10 @@ public class AdminService {
 	private final AdminRepository adminRepository;
 
 	public boolean isAdmin(Long userId) {
-		return adminRepository.existsByUserId(userId);
+		return adminRepository.existsByUserIdAndDeletedAtIsNull(userId);
 	}
 
 	public Optional<AdminLevel> findAdminLevel(Long userId) {
-		return adminRepository.findByUserId(userId).map(Admin::getAdminLevel);
+		return adminRepository.findByUserIdAndDeletedAtIsNull(userId).map(Admin::getAdminLevel);
 	}
 }

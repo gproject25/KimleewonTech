@@ -26,14 +26,14 @@ class AdminServiceTest {
 
 	@Test
 	void 관리자로_등록된_회원이면_true() {
-		given(adminRepository.existsByUserId(1L)).willReturn(true);
+		given(adminRepository.existsByUserIdAndDeletedAtIsNull(1L)).willReturn(true);
 
 		assertThat(adminService.isAdmin(1L)).isTrue();
 	}
 
 	@Test
 	void 관리자가_아닌_회원이면_false() {
-		given(adminRepository.existsByUserId(2L)).willReturn(false);
+		given(adminRepository.existsByUserIdAndDeletedAtIsNull(2L)).willReturn(false);
 
 		assertThat(adminService.isAdmin(2L)).isFalse();
 	}
@@ -42,14 +42,14 @@ class AdminServiceTest {
 	void 관리자가_등급을_반환() {
 		Admin admin = mock(Admin.class);
 		given(admin.getAdminLevel()).willReturn(AdminLevel.SUPER);
-		given(adminRepository.findByUserId(1L)).willReturn(Optional.of(admin));
+		given(adminRepository.findByUserIdAndDeletedAtIsNull(1L)).willReturn(Optional.of(admin));
 
 		assertThat(adminService.findAdminLevel(1L)).contains(AdminLevel.SUPER);
 	}
 
 	@Test
 	void 관리자가_아니면_빈_값() {
-		given(adminRepository.findByUserId(2L)).willReturn(Optional.empty());
+		given(adminRepository.findByUserIdAndDeletedAtIsNull(2L)).willReturn(Optional.empty());
 
 		assertThat(adminService.findAdminLevel(2L)).isEmpty();
 	}
