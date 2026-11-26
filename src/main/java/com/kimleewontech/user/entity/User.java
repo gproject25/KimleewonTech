@@ -1,6 +1,6 @@
 package com.kimleewontech.user.entity;
 
-import com.kimleewontech.common.BaseEntity;
+import com.kimleewontech.common.entity.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
