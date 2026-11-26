@@ -39,5 +39,3 @@ out/
 #Local Configuration
 application-local.yml
 .env
-
-#AI Agent Log
