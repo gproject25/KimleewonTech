@@ -52,7 +52,7 @@ public class ApiResponse<T> {
 
 	public static ApiResponse<Void> error(ErrorCode errorCode) {
 		return new ApiResponse<>(
-			errorCode.getCode(),
+			errorCode.name(),
 			errorCode.getMessage(),
 			errorCode.getStatus().value(),
 			null,
@@ -62,7 +62,7 @@ public class ApiResponse<T> {
 
 	public static ApiResponse<Void> error(ErrorCode errorCode, List<ValidationErrorResponse> validationErrors) {
 		return new ApiResponse<>(
-			errorCode.getCode(),
+			errorCode.name(),
 			errorCode.getMessage(),
 			errorCode.getStatus().value(),
 			null,
