@@ -1,5 +1,7 @@
 package com.kimleewontech.product.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,5 +40,15 @@ public class ProductService {
 			// 재고 부족 또는 주문 불가 상태인 경우
 			throw new BusinessException(ErrorCode.OUT_OF_STOCK);
 		}
+	}
+
+	// 기능 : 재고가 0인 상품 자동 품절 처리
+	@Transactional
+	public void markSoldOut(List<Long> productIds) {
+		// 상품 ID 목록이 비어 있으면 처리하지 않음
+		if (productIds.isEmpty()) {
+			return;
+		}
+		productRepository.markAsSoldOut(productIds);
 	}
 }
