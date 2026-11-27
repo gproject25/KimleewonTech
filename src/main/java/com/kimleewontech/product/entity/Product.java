@@ -99,4 +99,28 @@ public class Product extends BaseEntity {
 			.imageUrl(imageUrl)
 			.build();
 	}
+
+	// 기능 : 관리자 재고 변경 및 상품 상태 자동 변경
+	public void updateStock(Integer stock) {
+
+		// 변경할 재고는 필수이며 0 이상이어야 함
+		if (stock == null || stock < 0) {
+			throw new BusinessException(ErrorCode.INVALID_PRODUCT_STOCK);
+		}
+		// 재고 수량 변경
+		this.stock = stock;
+
+		// 판매 중단 상품은 기존 상태 유지
+		if (this.status == ProductStatus.DISCONTINUED) {
+			return;
+		}
+
+		// 재고가 0이면 자동 품절 처리
+		if (this.stock == 0) {
+			this.status = ProductStatus.SOLDOUT;
+		} else {
+			// 재고가 있으면 판매 중 상태로 변경
+			this.status = ProductStatus.ON_SALE;
+		}
+	}
 }
