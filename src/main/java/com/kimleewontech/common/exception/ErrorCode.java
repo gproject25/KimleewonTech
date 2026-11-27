@@ -23,6 +23,7 @@ public enum ErrorCode {
 	INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "AUTH_004", "이메일 또는 비밀번호가 올바르지 않습니다."),
 
 	// 사용자
+	DUPLICATE_EMAIL(HttpStatus.CONFLICT, "USER_001", "이미 가입한 이메일입니다."),
 
 	// 상품
 
