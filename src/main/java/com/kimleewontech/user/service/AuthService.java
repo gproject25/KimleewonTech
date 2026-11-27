@@ -1,11 +1,13 @@
 package com.kimleewontech.user.service;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.kimleewontech.common.exception.BusinessException;
 import com.kimleewontech.common.exception.ErrorCode;
+import com.kimleewontech.common.security.password.EncodedPassword;
+import com.kimleewontech.common.security.password.PasswordHasher;
+import com.kimleewontech.common.security.password.RawPassword;
 import com.kimleewontech.user.dto.request.UserCreateRequest;
 import com.kimleewontech.user.dto.response.UserCreateResponse;
 import com.kimleewontech.user.entity.User;
@@ -15,16 +17,17 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class AuthService {
 
 	// 속성
 	private final UserRepository userRepository;
-	private final PasswordEncoder passwordEncoder;
+	private final PasswordHasher passwordHasher;
 
 	// 기능
 
 	// 1. 회원가입
-	@Transactional(readOnly = true)
+	@Transactional
 	public UserCreateResponse createUser(UserCreateRequest request) {
 
 		// 1. 이메일 중복 유무 확인
@@ -33,7 +36,7 @@ public class AuthService {
 		}
 
 		// 2. BCrypt 비밀번호 암호화
-		String encodedPassword = passwordEncoder.encode(request.getPassword());
+		EncodedPassword encodedPassword = passwordHasher.encode(RawPassword.of(request.getPassword()));
 
 		// 3. user 생성
 		User user = User.create(request.getName(), request.getEmail(), encodedPassword,

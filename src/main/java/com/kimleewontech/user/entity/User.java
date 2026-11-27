@@ -1,6 +1,7 @@
 package com.kimleewontech.user.entity;
 
 import com.kimleewontech.common.entity.BaseEntity;
+import com.kimleewontech.common.security.password.EncodedPassword;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,20 +31,20 @@ public class User extends BaseEntity {
 	private String email;
 
 	@Column(nullable = false)
-	private String password;
+	private EncodedPassword password;
 
 	@Column(nullable = false, length = 20)
 	private String phone;
 
 	@Builder
-	private User(String name, String email, String password, String phone) {
+	private User(String name, String email, EncodedPassword password, String phone) {
 		this.name = name;
 		this.email = email;
 		this.password = password;
 		this.phone = phone;
 	}
 
-	public static User create(String name, String email, String encodedPassword, String phone) {
+	public static User create(String name, String email, EncodedPassword encodedPassword, String phone) {
 		return User.builder()
 			.name(name)
 			.email(email)
