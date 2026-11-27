@@ -36,8 +36,8 @@ public class ProductService {
 		// 재고 차감 실패 시 원인 확인
 		if (updatedRows == 0) {
 
-			// 상품이 존재하지 않는 경우
-			if (!productRepository.existsById(productId)) {
+			// 상품이 존재하지 않거나 삭제된 경우
+			if (!productRepository.existsByIdAndDeletedAtIsNull(productId)) {
 				throw new BusinessException(ErrorCode.PRODUCT_NOT_FOUND);
 			}
 			// 재고 부족 또는 주문 불가 상태인 경우
