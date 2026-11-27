@@ -8,7 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.kimleewontech.common.exception.BusinessException;
 import com.kimleewontech.common.exception.ErrorCode;
+import com.kimleewontech.product.dto.request.ProductStockUpdateRequest;
 import com.kimleewontech.product.dto.response.ProductOrderInfo;
+import com.kimleewontech.product.dto.response.ProductStockUpdateResponse;
 import com.kimleewontech.product.entity.Product;
 import com.kimleewontech.product.repository.ProductRepository;
 
@@ -80,5 +82,19 @@ public class ProductService {
 		}
 		// 변환된 DTO 목록 반환
 		return orderInfos;
+	}
+
+	// 기능 : 관리자 상품 재고 변경
+	@Transactional
+	public ProductStockUpdateResponse updateStock(Long productId, ProductStockUpdateRequest request) {
+		// 삭제되지 않은 상품 조회 및 존재하지 않을 경우 예외 처리
+		Product product = productRepository.findByIdAndDeletedAtIsNull(productId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+
+		// 상품 재고 및 판매 상태 변경
+		product.updateStock(request.getStock());
+
+		// 변경된 상품 정보를 응답 DTO로 변환하여 반환
+		return ProductStockUpdateResponse.from(product);
 	}
 }
