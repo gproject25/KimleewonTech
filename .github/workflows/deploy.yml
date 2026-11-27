@@ -6,11 +6,11 @@ name: CI/CD
 # push: 위 내용 + Docker Hub에 이미지 push + ASG 인스턴스에 배포
 on:
   push:
-    branches: [ feature/30-jj-deploy ]
+    branches: [ main ]
     paths-ignore:
       - '**/*.md'
   pull_request:
-    branches: [ feature/30-jj-deploy ]
+    branches: [ main ]
     paths-ignore:
       - '**/*.md'
 
