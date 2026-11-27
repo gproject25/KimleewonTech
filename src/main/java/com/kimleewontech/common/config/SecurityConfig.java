@@ -54,6 +54,7 @@ public class SecurityConfig {
 
 			// 권한
 			.authorizeHttpRequests(auth -> auth
+				.requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
 				.requestMatchers("/api/auth/signup", "/api/auth/login").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/customer/products", "/api/customer/products/**").permitAll()
 				.requestMatchers("/api/admin/admins/**").hasAuthority("ADMIN_SUPER")
