@@ -1,6 +1,7 @@
 package com.kimleewontech.product.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -50,4 +51,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
 	// 삭제되지 않은 상품의 존재 여부 확인
 	boolean existsByIdAndDeletedAtIsNull(Long productId);
+
+	// 삭제되지 않은 상품 단건 조회
+	Optional<Product> findByIdAndDeletedAtIsNull(Long productId);
 }
