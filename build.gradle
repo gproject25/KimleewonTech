@@ -19,7 +19,14 @@ repositories {
 }
 
 dependencies {
+    //Spring Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    testImplementation 'org.springframework.security:spring-security-test'
 
+    //JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
     //BOM
     implementation platform('io.awspring.cloud:spring-cloud-aws-dependencies:4.2.1')
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-parameter-store'
