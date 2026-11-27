@@ -26,12 +26,19 @@ public enum ErrorCode {
 	DUPLICATE_EMAIL(HttpStatus.CONFLICT, "USER_001", "이미 가입한 이메일입니다."),
 
 	// 상품
+	INVALID_PRODUCT_PRICE(HttpStatus.BAD_REQUEST, "PRODUCT_003", "상품 가격은 0원 이상이어야 합니다."),
+	INVALID_PRODUCT_STOCK(HttpStatus.BAD_REQUEST, "PRODUCT_004", "재고는 0개 이상이어야 합니다."),
 
 	// 카트
 
 	//주문
 
 	//결제
+
+	// 관리자
+	ALREADY_ADMIN(HttpStatus.CONFLICT, "ADMIN_001", "이미 관리자인 회원입니다."),
+	ADMIN_NOT_FOUND(HttpStatus.NOT_FOUND, "ADMIN_002", "관리자가 아니거나 이미 해제된 회원입니다."),
+	CANNOT_REVOKE_SELF(HttpStatus.CONFLICT, "ADMIN_003", "자기 자신은 관리자에서 해제할 수 없습니다."),
 
 	;
 
