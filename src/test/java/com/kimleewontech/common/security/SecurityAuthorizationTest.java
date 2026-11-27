@@ -17,11 +17,11 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kimleewontech.admin.enums.AdminLevel;
 import com.kimleewontech.common.config.SecurityConfig;
 import com.kimleewontech.common.security.auth.AuthMember;
 import com.kimleewontech.common.security.jwt.JwtProperties;
 import com.kimleewontech.common.security.jwt.JwtProvider;
-import com.kimleewontech.domain.admin.entity.AdminLevel;
 
 // 인증·인가 규칙 테스트 (DB · 엔티티 · 실제 컨트롤러 없이 웹 계층만)
 @WebMvcTest(SecurityAuthorizationTest.DummyController.class)

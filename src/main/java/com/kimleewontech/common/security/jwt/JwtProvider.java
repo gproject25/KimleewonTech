@@ -6,9 +6,9 @@ import javax.crypto.SecretKey;
 
 import org.springframework.stereotype.Component;
 
+import com.kimleewontech.admin.enums.AdminLevel;
 import com.kimleewontech.common.security.auth.AuthMember;
 import com.kimleewontech.common.security.auth.AuthRole;
-import com.kimleewontech.domain.admin.entity.AdminLevel;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;

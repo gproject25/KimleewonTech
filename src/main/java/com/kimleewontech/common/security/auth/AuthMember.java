@@ -1,6 +1,6 @@
 package com.kimleewontech.common.security.auth;
 
-import com.kimleewontech.domain.admin.entity.AdminLevel;
+import com.kimleewontech.admin.enums.AdminLevel;
 
 import lombok.AccessLevel;
 import lombok.Getter;
