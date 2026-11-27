@@ -88,8 +88,7 @@ public class ProductService {
 	@Transactional
 	public ProductStockUpdateResponse updateStock(Long productId, ProductStockUpdateRequest request) {
 		// 삭제되지 않은 상품 조회 및 존재하지 않을 경우 예외 처리
-		Product product = productRepository.findByIdAndDeletedAtIsNull(productId)
-			.orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+		Product product = findProduct(productId);
 
 		// 상품 재고 및 판매 상태 변경
 		product.updateStock(request.getStock());
@@ -116,5 +115,11 @@ public class ProductService {
 
 		// 재고가 복구된 품절 상품의 자동 판매 재개
 		productRepository.markAsOnSale(productId);
+	}
+
+	// 기능 : 삭제되지 않은 상품 단건 조회
+	public Product findProduct(Long productId) {
+		return productRepository.findByIdAndDeletedAtIsNull(productId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
 	}
 }
