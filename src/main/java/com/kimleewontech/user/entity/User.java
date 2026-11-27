@@ -4,6 +4,7 @@ import com.kimleewontech.common.entity.BaseEntity;
 import com.kimleewontech.common.security.password.EncodedPassword;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -30,7 +31,7 @@ public class User extends BaseEntity {
 	@Column(nullable = false, unique = true, length = 100)
 	private String email;
 
-	@Column(nullable = false)
+	@Embedded
 	private EncodedPassword password;
 
 	@Column(nullable = false, length = 20)
