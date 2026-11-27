@@ -14,6 +14,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.kimleewontech.admin.entity.Admin;
 import com.kimleewontech.admin.enums.AdminLevel;
 import com.kimleewontech.admin.repository.AdminRepository;
+import com.kimleewontech.common.exception.BusinessException;
+import com.kimleewontech.common.exception.ErrorCode;
 
 @ExtendWith(MockitoExtension.class)
 class AdminServiceTest {
@@ -52,5 +54,23 @@ class AdminServiceTest {
 		given(adminRepository.findByUserIdAndDeletedAtIsNull(2L)).willReturn(Optional.empty());
 
 		assertThat(adminService.findAdminLevel(2L)).isEmpty();
+	}
+
+	@Test
+	void 관리자면_관리자_엔티티를_반환() {
+		Admin admin = mock(Admin.class);
+		given(adminRepository.findByUserIdAndDeletedAtIsNull(1L)).willReturn(Optional.of(admin));
+
+		assertThat(adminService.findAdmin(1L)).isSameAs(admin);
+	}
+
+	@Test
+	void 관리자가_아니면_ADMIN_NOT_FOUND() {
+		given(adminRepository.findByUserIdAndDeletedAtIsNull(2L)).willReturn(Optional.empty());
+
+		assertThatThrownBy(() -> adminService.findAdmin(2L))
+			.isInstanceOf(BusinessException.class)
+			.extracting("errorCode")
+			.isEqualTo(ErrorCode.ADMIN_NOT_FOUND);
 	}
 }
