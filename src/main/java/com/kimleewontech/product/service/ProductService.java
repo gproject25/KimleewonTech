@@ -97,4 +97,24 @@ public class ProductService {
 		// 변경된 상품 정보를 응답 DTO로 변환하여 반환
 		return ProductStockUpdateResponse.from(product);
 	}
+
+	// 기능 : 주문 취소 및 환불 시 상품 재고 복구
+	@Transactional
+	public void restoreStock(Long productId, int quantity) {
+		// 복구 수량 검증
+		if (quantity <= 0) {
+			throw new BusinessException(ErrorCode.INVALID_INPUT);
+		}
+
+		// 소프트 삭제된 상품을 포함하여 재고 복구
+		int updatedRows = productRepository.restoreStock(productId, quantity);
+
+		// 상품이 존재하지 않을 경우 예외 처리
+		if (updatedRows == 0) {
+			throw new BusinessException(ErrorCode.PRODUCT_NOT_FOUND);
+		}
+
+		// 재고가 복구된 품절 상품의 자동 판매 재개
+		productRepository.markAsOnSale(productId);
+	}
 }
