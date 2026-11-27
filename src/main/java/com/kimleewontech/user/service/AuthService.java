@@ -15,12 +15,11 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class AuthService {
 
 	// 속성
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
-
 
 	// 기능
 

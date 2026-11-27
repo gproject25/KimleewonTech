@@ -18,7 +18,7 @@ import com.kimleewontech.user.entity.User;
 import com.kimleewontech.user.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceTest {
+class AuthServiceTest {
 
 	@Mock
 	private UserRepository userRepository;
@@ -27,7 +27,7 @@ class UserServiceTest {
 	private PasswordEncoder passwordEncoder;
 
 	@InjectMocks
-	private UserService userService;
+	private AuthService authService;
 
 	@Test
 	void 이미_가입한_이메일이면_DUPLICATE_EMAIL_예외() {
@@ -37,7 +37,7 @@ class UserServiceTest {
 		given(userRepository.existsByEmail("abc@gmail.com")).willReturn(true);
 
 		// when & then: 실행하면 DUPLICATE_EMAIL 예외가 나야 함
-		assertThatThrownBy(() -> userService.createUser(request))
+		assertThatThrownBy(() -> authService.createUser(request))
 			.isInstanceOf(BusinessException.class)
 			.extracting("errorCode")
 			.isEqualTo(ErrorCode.DUPLICATE_EMAIL);
@@ -59,7 +59,7 @@ class UserServiceTest {
 		given(userRepository.save(any(User.class))).willAnswer(invocation -> invocation.getArgument(0));
 
 		// when: 회원가입 실행
-		UserCreateResponse response = userService.createUser(request);
+		UserCreateResponse response = authService.createUser(request);
 
 		// then: 응답 값 확인 + 암호화된 비밀번호로 저장됐는지 확인
 		assertThat(response.getEmail()).isEqualTo("a@a.com");

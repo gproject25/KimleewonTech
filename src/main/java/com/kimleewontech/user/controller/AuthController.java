@@ -8,32 +8,28 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kimleewontech.common.response.ApiResponse;
-import com.kimleewontech.user.dto.request.CreateUserRequest;
-import com.kimleewontech.user.dto.response.CreateUserResponse;
-import com.kimleewontech.user.service.UserService;
+import com.kimleewontech.user.dto.request.UserCreateRequest;
+import com.kimleewontech.user.dto.response.UserCreateResponse;
+import com.kimleewontech.user.service.AuthService;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api")
 public class AuthController {
 
 	//속성
-	private final UserService userService;
-
-	//생성자
-	public AuthController(UserService userService) {
-		this.userService = userService;
-	}
+	private final AuthService authService;
 
 	//기능
-
 	// 1. 회원가입
 	@PostMapping("/auth/signup")
-	public ResponseEntity<ApiResponse<CreateUserResponse>> createUser(@Valid @RequestBody CreateUserRequest request) {
+	public ResponseEntity<ApiResponse<UserCreateResponse>> createUser(@Valid @RequestBody UserCreateRequest request) {
 
 		// 1. 서비스 처리
-		CreateUserResponse response = userService.createUser(request);
+		UserCreateResponse response = authService.createUser(request);
 
 		// 2. 반환
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(response, HttpStatus.CREATED));
