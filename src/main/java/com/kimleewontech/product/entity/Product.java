@@ -72,12 +72,12 @@ public class Product extends BaseEntity {
 
 		// 상품 가격은 필수이며 0 이상이어야 함
 		if (price == null || price < 0) {
-			throw new BusinessException(ErrorCode.INVALID_INPUT);
+			throw new BusinessException(ErrorCode.INVALID_PRODUCT_PRICE);
 		}
 
 		// 초기 재고는 필수이며 0 이상이어야 함
 		if (stock == null || stock < 0) {
-			throw new BusinessException(ErrorCode.INVALID_INPUT);
+			throw new BusinessException(ErrorCode.INVALID_PRODUCT_STOCK);
 		}
 
 		// 상품 상태 미입력 시 기본값은 판매 중

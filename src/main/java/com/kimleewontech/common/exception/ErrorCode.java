@@ -25,6 +25,8 @@ public enum ErrorCode {
 	// 사용자
 
 	// 상품
+	INVALID_PRODUCT_PRICE(HttpStatus.BAD_REQUEST, "PRODUCT_003", "상품 가격은 0원 이상이어야 합니다."),
+	INVALID_PRODUCT_STOCK(HttpStatus.BAD_REQUEST, "PRODUCT_004", "재고는 0개 이상이어야 합니다."),
 
 	// 카트
 
