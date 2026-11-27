@@ -21,6 +21,8 @@ public enum ErrorCode {
 	// 사용자
 
 	// 상품
+	PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_001", "상품을 찾을 수 없습니다."),
+	OUT_OF_STOCK(HttpStatus.CONFLICT, "PRODUCT_002", "재고가 부족하거나 주문할 수 없는 상품입니다."),
 
 	// 카트
 
