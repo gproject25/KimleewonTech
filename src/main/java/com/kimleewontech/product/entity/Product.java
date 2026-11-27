@@ -1,5 +1,6 @@
 package com.kimleewontech.product.entity;
 
+import com.kimleewontech.admin.entity.Admin;
 import com.kimleewontech.common.entity.BaseEntity;
 import com.kimleewontech.common.exception.BusinessException;
 import com.kimleewontech.common.exception.ErrorCode;
@@ -9,9 +10,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -28,6 +32,10 @@ public class Product extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "admin_id")
+	private Admin admin;
 
 	@Column(nullable = false, length = 100)
 	private String name;
@@ -55,8 +63,9 @@ public class Product extends BaseEntity {
 	// 생성자
 	// 정적 팩토리 메서드를 통해서만 상품을 생성하도록 제한
 	@Builder(access = AccessLevel.PRIVATE)
-	private Product(String name, Integer price, Integer stock, ProductStatus status, String description,
+	private Product(Admin admin, String name, Integer price, Integer stock, ProductStatus status, String description,
 		String imageUrl) {
+		this.admin = admin;
 		this.name = name;
 		this.price = price;
 		this.stock = stock;
@@ -67,7 +76,7 @@ public class Product extends BaseEntity {
 
 	// 기능
 	// 상품 생성 (입력값 검증 및 초기 판매 상태 설정)
-	public static Product create(String name, Integer price, Integer stock,
+	public static Product create(Admin admin, String name, Integer price, Integer stock,
 		ProductStatus status, String description, String imageUrl) {
 
 		// 상품 가격은 필수이며 0 이상이어야 함
@@ -91,6 +100,7 @@ public class Product extends BaseEntity {
 		}
 
 		return Product.builder()
+			.admin(admin)
 			.name(name)
 			.price(price)
 			.stock(stock)
