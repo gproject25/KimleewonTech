@@ -19,7 +19,7 @@ public enum ErrorCode {
 	// 인증
 
 	// 사용자
-	DUPLICATE_EMAIL(HttpStatus.CONFLICT, "USER_001", "이미 가입한 이메일입니다.")
+	DUPLICATE_EMAIL(HttpStatus.CONFLICT, "USER_001", "이미 가입한 이메일입니다."),
 
 	// 상품
 
