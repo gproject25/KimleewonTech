@@ -1,0 +1,250 @@
+name: CI/CD
+
+# 배포 테스트 중: feature/30-jj-deploy 브랜치에서만 배포
+# (테스트가 끝나면 branches를 [main]으로 바꾸고, OIDC 역할 신뢰 정책도 함께 수정)
+# PR: 빌드 · 테스트 · 스모크 테스트
+# push: 위 내용 + Docker Hub에 이미지 push + ASG 인스턴스에 배포
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - '**/*.md'
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - '**/*.md'
+
+# PR은 새 커밋이 오면 이전 실행 취소, main 배포는 취소하지 않음
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  IMAGE_NAME: ${{ vars.DOCKERHUB_USERNAME }}/kimleewontech
+
+jobs:
+  build:
+    name: Build, Test and Push
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+
+    # 테스트 · 스모크 테스트용 MySQL (운영 RDS와 같은 8.4)
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: test
+          MYSQL_DATABASE: kiwt
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -ptest"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    # 테스트와 스모크 테스트가 쓰는 설정 (CI 전용 값, 운영 값 아님)
+    env:
+      SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/kiwt
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: test
+      SPRING_JPA_HIBERNATE_DDLAUTO: create-drop
+      JWT_SECRET: a2ltbGVld29udGVjaC10ZXN0LWp3dC1zZWNyZXQta2V5LTAxMjM0NTY3ODk=
+      JWT_ACCESSEXPIRATION: '3600000'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # 테스트 + app.jar 생성 (build/libs/app.jar)
+      - name: Build and test
+        run: ./gradlew build --no-daemon
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 스모크 테스트용 AMD64 이미지 (러너에 로드만, push 안 함)
+      - name: Build image for smoke test
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          platforms: linux/amd64
+          tags: kiwt-backend:smoke
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # 컨테이너가 실제로 뜨는지 확인 (--network host로 MySQL 서비스에 접속)
+      - name: Smoke test container
+        run: |
+          docker run -d --name smoke-test --network host \
+            -e SPRING_DATASOURCE_URL -e SPRING_DATASOURCE_USERNAME -e SPRING_DATASOURCE_PASSWORD \
+            -e SPRING_JPA_HIBERNATE_DDLAUTO \
+            -e JWT_SECRET -e JWT_ACCESSEXPIRATION \
+            kiwt-backend:smoke
+
+          curl -fsS --retry 30 --retry-delay 2 \
+            --retry-connrefused --retry-all-errors \
+            http://localhost:8080/actuator/health \
+            || { docker logs smoke-test; exit 1; }
+
+      - name: Login to Docker Hub
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # main push에서만 AMD64 + ARM64 이미지 push (jar 복사만 해서 ARM64도 빠름)
+      - name: Build and push multi-arch image
+        if: github.event_name == 'push'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.IMAGE_NAME }}:latest
+          cache-from: type=gha
+
+  deploy:
+    name: Deploy to ASG
+    needs: build
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      id-token: write
+      contents: read
+
+    env:
+      IMAGE: ${{ vars.DOCKERHUB_USERNAME }}/kimleewontech:${{ github.sha }}
+      ASG_NAME: ${{ vars.ASG_NAME }}
+
+    steps:
+      # GitHub OIDC로 AWS 인증 (Access Key 없음)
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ap-northeast-2
+
+      # ASG 인스턴스 전체에 SSM으로 배포 (한 번에 1대씩, 실패하면 이전 이미지로 롤백)
+      - name: Deploy via SSM
+        run: |
+          cat > deploy.sh << 'SCRIPT'
+          set -e
+
+          NAME=kiwt-backend
+          RUN_ARGS="-d --name $NAME -p 8080:8080 --restart unless-stopped -e SPRING_PROFILES_ACTIVE=prod -e AWS_REGION=ap-northeast-2"
+
+          # 1. 현재 실행 중인 이미지 기억 (롤백용)
+          PREV=$(docker inspect --format '{{.Config.Image}}' "$NAME" 2>/dev/null || true)
+
+          # 2. 새 이미지 다운로드
+          docker pull "$IMAGE"
+
+          # 3. 기존 컨테이너 교체
+          docker rm -f "$NAME" || true
+
+          rollback() {
+            docker logs "$NAME" || true
+            docker rm -f "$NAME" || true
+            if [ -n "$PREV" ]; then
+              docker run $RUN_ARGS "$PREV"
+              echo "Rolled back to $PREV"
+            else
+              echo "No previous image available for rollback."
+            fi
+            exit 1
+          }
+
+          # 4. 새 컨테이너 실행
+          docker run $RUN_ARGS "$IMAGE" || rollback
+
+          # 5. 헬스 체크 (최대 약 60초)
+          if curl -fsS --retry 30 --retry-delay 2 \
+              --retry-connrefused --retry-all-errors \
+              http://localhost:8080/actuator/health; then
+            echo "Deployment successful: $IMAGE"
+            docker image prune -af
+            exit 0
+          fi
+
+          echo "Health check failed."
+          rollback
+          SCRIPT
+
+          PARAMS=$(jq -n --arg image "$IMAGE" --rawfile script deploy.sh \
+            '{commands: [("IMAGE=\($image)\n" + $script)]}')
+
+          # ASG 이름 태그로 대상 지정 (인스턴스 ID가 바뀌어도 동작)
+          RESULT=$(aws ssm send-command \
+            --targets "Key=tag:aws:autoscaling:groupName,Values=$ASG_NAME" \
+            --document-name "AWS-RunShellScript" \
+            --parameters "$PARAMS" \
+            --max-concurrency 1 \
+            --max-errors 0 \
+            --timeout-seconds 600 \
+            --query "Command.[CommandId, TargetCount]" \
+            --output text)
+
+          COMMAND_ID=$(echo "$RESULT" | cut -f1)
+          TARGET_COUNT=$(echo "$RESULT" | cut -f2)
+          echo "Deployment command: $COMMAND_ID (targets: $TARGET_COUNT)"
+
+          # 대상 인스턴스가 없으면 바로 실패
+          if [ "$TARGET_COUNT" = "0" ]; then
+            echo "No instances found for ASG $ASG_NAME"
+            exit 1
+          fi
+
+          # 모든 인스턴스가 끝날 때까지 대기 (최대 약 10분)
+          for i in $(seq 1 120); do
+            STATUSES=$(aws ssm list-command-invocations \
+              --command-id "$COMMAND_ID" \
+              --query "CommandInvocations[].Status" \
+              --output text)
+            echo "Statuses: ${STATUSES:-waiting}"
+
+            if [ -n "$STATUSES" ] && ! echo "$STATUSES" | grep -qE 'Pending|InProgress|Delayed'; then
+              break
+            fi
+            sleep 5
+          done
+
+          # 인스턴스별 결과 출력
+          aws ssm list-command-invocations \
+            --command-id "$COMMAND_ID" \
+            --details \
+            --query "CommandInvocations[].[InstanceId, Status, CommandPlugins[0].Output]" \
+            --output text
+
+          TOTAL=$(aws ssm list-command-invocations --command-id "$COMMAND_ID" \
+            --query "length(CommandInvocations)" --output text)
+          FAILED=$(aws ssm list-command-invocations --command-id "$COMMAND_ID" \
+            --query "length(CommandInvocations[?Status!='Success'])" --output text)
+
+          if [ "$TOTAL" = "0" ]; then
+            echo "No instances found for ASG $ASG_NAME"
+            exit 1
+          fi
+
+          if [ "$FAILED" != "0" ]; then
+            echo "$FAILED of $TOTAL instances failed"
+            exit 1
+          fi
+
+          echo "Deployed to $TOTAL instance(s)"

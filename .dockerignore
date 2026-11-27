@@ -1,0 +1,14 @@
+# 비밀값 -> 로컬 설정
+.env
+**/application-local.yml
+
+# Git · IDE
+.git
+.github
+.idea
+*.iml
+
+# Gradle 캐시
+.gradle
+build/*
+!build/libs/
