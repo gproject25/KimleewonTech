@@ -1,5 +1,6 @@
 package com.kimleewontech.product.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -7,6 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.kimleewontech.common.exception.BusinessException;
 import com.kimleewontech.common.exception.ErrorCode;
+import com.kimleewontech.product.dto.response.ProductOrderInfo;
+import com.kimleewontech.product.entity.Product;
 import com.kimleewontech.product.repository.ProductRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -50,5 +53,32 @@ public class ProductService {
 			return;
 		}
 		productRepository.markAsSoldOut(productIds);
+	}
+
+	// 기능 : 주문 스냅샷용 상품 정보 조회
+	public List<ProductOrderInfo> getOrderInfos(List<Long> productIds) {
+		// 상품 ID 목록이 비어 있으면 빈 목록 반환
+		if (productIds.isEmpty()) {
+			return List.of();
+		}
+
+		// 주문에 필요한 상품 목록 조회
+		List<Product> products = productRepository.findOrderProducts(productIds);
+
+		// 요청한 상품이 모두 조회되었는지 확인
+		if (productIds.size() != products.size()) {
+			throw new BusinessException(ErrorCode.PRODUCT_NOT_FOUND);
+		}
+
+		// 주문 스냅샷용 DTO 목록 생성
+		List<ProductOrderInfo> orderInfos = new ArrayList<>();
+
+		// 상품 엔티티를 주문 스냅샷용 DTO로 변환
+		for (Product product : products) {
+			ProductOrderInfo orderInfo = ProductOrderInfo.from(product);
+			orderInfos.add(orderInfo);
+		}
+		// 변환된 DTO 목록 반환
+		return orderInfos;
 	}
 }
