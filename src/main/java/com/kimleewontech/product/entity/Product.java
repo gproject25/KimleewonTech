@@ -1,8 +1,5 @@
 package com.kimleewontech.product.entity;
 
-import org.hibernate.annotations.SoftDelete;
-import org.hibernate.annotations.SoftDeleteType;
-
 import com.kimleewontech.common.entity.BaseEntity;
 import com.kimleewontech.common.exception.BusinessException;
 import com.kimleewontech.common.exception.ErrorCode;
@@ -23,8 +20,6 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "products")
-// 삭제 시 deleted_at에 삭제 시간을 기록하고 일반 조회에서 제외
-@SoftDelete(strategy = SoftDeleteType.TIMESTAMP, columnName = "deleted_at")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Product extends BaseEntity {
@@ -77,12 +72,12 @@ public class Product extends BaseEntity {
 
 		// 상품 가격은 필수이며 0 이상이어야 함
 		if (price == null || price < 0) {
-			throw new BusinessException(ErrorCode.INVALID_INPUT);
+			throw new BusinessException(ErrorCode.INVALID_PRODUCT_PRICE);
 		}
 
 		// 초기 재고는 필수이며 0 이상이어야 함
 		if (stock == null || stock < 0) {
-			throw new BusinessException(ErrorCode.INVALID_INPUT);
+			throw new BusinessException(ErrorCode.INVALID_PRODUCT_STOCK);
 		}
 
 		// 상품 상태 미입력 시 기본값은 판매 중
