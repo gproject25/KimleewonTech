@@ -8,8 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.kimleewontech.common.exception.BusinessException;
 import com.kimleewontech.common.exception.ErrorCode;
+import com.kimleewontech.product.dto.info.ProductOrderInfo;
 import com.kimleewontech.product.dto.request.ProductStockUpdateRequest;
-import com.kimleewontech.product.dto.response.ProductOrderInfo;
 import com.kimleewontech.product.dto.response.ProductStockUpdateResponse;
 import com.kimleewontech.product.entity.Product;
 import com.kimleewontech.product.repository.ProductRepository;

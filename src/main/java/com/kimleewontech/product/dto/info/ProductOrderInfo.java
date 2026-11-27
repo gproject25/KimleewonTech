@@ -1,4 +1,4 @@
-package com.kimleewontech.product.dto.response;
+package com.kimleewontech.product.dto.info;
 
 import com.kimleewontech.product.entity.Product;
 
