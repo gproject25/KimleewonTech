@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kimleewontech.common.response.ApiResponse;
 import com.kimleewontech.user.dto.request.CreateUserRequest;
 import com.kimleewontech.user.dto.response.CreateUserResponse;
 import com.kimleewontech.user.service.UserService;
@@ -15,13 +16,13 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api")
-public class UserController {
+public class AuthController {
 
 	//속성
 	private final UserService userService;
 
 	//생성자
-	public UserController(UserService userService) {
+	public AuthController(UserService userService) {
 		this.userService = userService;
 	}
 
@@ -29,13 +30,13 @@ public class UserController {
 
 	// 1. 회원가입
 	@PostMapping("/auth/signup")
-	public ResponseEntity<CreateUserResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
+	public ResponseEntity<ApiResponse<CreateUserResponse>> createUser(@Valid @RequestBody CreateUserRequest request) {
 
 		// 1. 서비스 처리
 		CreateUserResponse response = userService.createUser(request);
 
 		// 2. 반환
-		return ResponseEntity.status(HttpStatus.CREATED).body(response);
+		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(response, HttpStatus.CREATED));
 
 	}
 
