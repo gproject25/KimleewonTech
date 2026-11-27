@@ -27,7 +27,7 @@ public class UserService {
 	// 기능
 
 	// 1. 회원가입
-	@Transactional
+	@Transactional(readOnly = true)
 	public CreateUserResponse createUser(CreateUserRequest request) {
 
 		// 1. 이메일 중복 유무 확인
