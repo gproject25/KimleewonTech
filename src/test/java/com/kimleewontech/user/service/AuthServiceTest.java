@@ -12,8 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.kimleewontech.common.exception.BusinessException;
 import com.kimleewontech.common.exception.ErrorCode;
-import com.kimleewontech.user.dto.request.CreateUserRequest;
-import com.kimleewontech.user.dto.response.CreateUserResponse;
+import com.kimleewontech.user.dto.request.UserCreateRequest;
+import com.kimleewontech.user.dto.response.UserCreateResponse;
 import com.kimleewontech.user.entity.User;
 import com.kimleewontech.user.repository.UserRepository;
 
@@ -32,7 +32,7 @@ class UserServiceTest {
 	@Test
 	void 이미_가입한_이메일이면_DUPLICATE_EMAIL_예외() {
 		// given: 이메일이 이미 있는 상황
-		CreateUserRequest request = mock(CreateUserRequest.class);
+		UserCreateRequest request = mock(UserCreateRequest.class);
 		given(request.getEmail()).willReturn("abc@gmail.com");
 		given(userRepository.existsByEmail("abc@gmail.com")).willReturn(true);
 
@@ -49,7 +49,7 @@ class UserServiceTest {
 	@Test
 	void 회원가입_성공시_암호화된_비밀번호로_저장() {
 		// given: 정상 요청 + 중복 아님 + 암호화 결과 + 저장
-		CreateUserRequest request = mock(CreateUserRequest.class);
+		UserCreateRequest request = mock(UserCreateRequest.class);
 		given(request.getName()).willReturn("철수");
 		given(request.getEmail()).willReturn("a@a.com");
 		given(request.getPassword()).willReturn("abcd123!");
@@ -59,7 +59,7 @@ class UserServiceTest {
 		given(userRepository.save(any(User.class))).willAnswer(invocation -> invocation.getArgument(0));
 
 		// when: 회원가입 실행
-		CreateUserResponse response = userService.createUser(request);
+		UserCreateResponse response = userService.createUser(request);
 
 		// then: 응답 값 확인 + 암호화된 비밀번호로 저장됐는지 확인
 		assertThat(response.getEmail()).isEqualTo("a@a.com");

@@ -6,29 +6,27 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.kimleewontech.common.exception.BusinessException;
 import com.kimleewontech.common.exception.ErrorCode;
-import com.kimleewontech.user.dto.request.CreateUserRequest;
-import com.kimleewontech.user.dto.response.CreateUserResponse;
+import com.kimleewontech.user.dto.request.UserCreateRequest;
+import com.kimleewontech.user.dto.response.UserCreateResponse;
 import com.kimleewontech.user.entity.User;
 import com.kimleewontech.user.repository.UserRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
 	// 속성
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 
-	// 생성자
-	public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-		this.userRepository = userRepository;
-		this.passwordEncoder = passwordEncoder;
-	}
 
 	// 기능
 
 	// 1. 회원가입
 	@Transactional(readOnly = true)
-	public CreateUserResponse createUser(CreateUserRequest request) {
+	public UserCreateResponse createUser(UserCreateRequest request) {
 
 		// 1. 이메일 중복 유무 확인
 		if (userRepository.existsByEmail(request.getEmail())) {
@@ -47,7 +45,7 @@ public class UserService {
 		User savedUser = userRepository.save(user);
 
 		// 5. 반환
-		return CreateUserResponse.from(savedUser);
+		return UserCreateResponse.from(savedUser);
 
 	}
 }
