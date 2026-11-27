@@ -66,4 +66,13 @@ public class CartItem extends BaseEntity {
 	public void updateQuantity(int quantity) {
 		this.quantity = quantity;
 	}
+
+	// 장바구니 항목 생성 (정적 팩토리 안에서 빌더 사용 - 팀 규칙)
+	public static CartItem create(Cart cart, Product product, int quantity) {
+		return CartItem.builder()
+			.cart(cart)
+			.product(product)
+			.quantity(quantity)
+			.build();
+	}
 }

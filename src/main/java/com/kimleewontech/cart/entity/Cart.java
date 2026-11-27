@@ -39,4 +39,11 @@ public class Cart extends BaseEntity {
 	private Cart(User user) {
 		this.user = user;
 	}
+
+	// 장바구니 생성 (정적 팩토리 안에서 빌더 사용 - 팀 규칙)
+	public static Cart create(User user) {
+		return Cart.builder()
+			.user(user)
+			.build();
+	}
 }
