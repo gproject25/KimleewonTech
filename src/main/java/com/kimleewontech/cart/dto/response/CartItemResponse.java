@@ -28,7 +28,6 @@ public class CartItemResponse {
 		Product product = cartItem.getProduct();
 
 		int subtotal = product.getPrice() * cartItem.getQuantity();
-		// Todo: 상품 상태(ProductStatus) 개발 후 SOLDOUT 기준 변경
 		boolean soldOut = product.getStock() <= 0;
 
 		return new CartItemResponse(
