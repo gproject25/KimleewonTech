@@ -191,17 +191,25 @@ jobs:
             '{commands: [("IMAGE=\($image)\n" + $script)]}')
 
           # ASG 이름 태그로 대상 지정 (인스턴스 ID가 바뀌어도 동작)
-          COMMAND_ID=$(aws ssm send-command \
+          RESULT=$(aws ssm send-command \
             --targets "Key=tag:aws:autoscaling:groupName,Values=$ASG_NAME" \
             --document-name "AWS-RunShellScript" \
             --parameters "$PARAMS" \
             --max-concurrency 1 \
             --max-errors 0 \
             --timeout-seconds 600 \
-            --query "Command.CommandId" \
+            --query "Command.[CommandId, TargetCount]" \
             --output text)
 
-          echo "Deployment command: $COMMAND_ID"
+          COMMAND_ID=$(echo "$RESULT" | cut -f1)
+          TARGET_COUNT=$(echo "$RESULT" | cut -f2)
+          echo "Deployment command: $COMMAND_ID (targets: $TARGET_COUNT)"
+
+          # 대상 인스턴스가 없으면 바로 실패
+          if [ "$TARGET_COUNT" = "0" ]; then
+            echo "No instances found for ASG $ASG_NAME"
+            exit 1
+          fi
 
           # 모든 인스턴스가 끝날 때까지 대기 (최대 약 10분)
           for i in $(seq 1 120); do
