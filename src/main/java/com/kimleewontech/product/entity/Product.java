@@ -1,8 +1,5 @@
 package com.kimleewontech.product.entity;
 
-import org.hibernate.annotations.SoftDelete;
-import org.hibernate.annotations.SoftDeleteType;
-
 import com.kimleewontech.common.entity.BaseEntity;
 import com.kimleewontech.common.exception.BusinessException;
 import com.kimleewontech.common.exception.ErrorCode;
@@ -23,8 +20,6 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "products")
-// 삭제 시 deleted_at에 삭제 시간을 기록하고 일반 조회에서 제외
-@SoftDelete(strategy = SoftDeleteType.TIMESTAMP, columnName = "deleted_at")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Product extends BaseEntity {
