@@ -16,6 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -37,13 +38,14 @@ public class Admin extends BaseEntity {
 	@Column(name = "admin_level", nullable = false, length = 20)
 	private AdminLevel adminLevel;
 
+	@Builder(access = AccessLevel.PRIVATE)
 	private Admin(User user, AdminLevel adminLevel) {
 		this.user = user;
 		this.adminLevel = adminLevel;
 	}
 
 	public static Admin create(User user, AdminLevel adminLevel) {
-		return new Admin(user, adminLevel);
+		return Admin.builder().user(user).adminLevel(adminLevel).build();
 	}
 
 	public boolean isSuper() {
