@@ -26,6 +26,8 @@ public enum ErrorCode {
 	DUPLICATE_EMAIL(HttpStatus.CONFLICT, "USER_001", "이미 가입한 이메일입니다."),
 
 	// 상품
+	PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_001", "상품을 찾을 수 없습니다."),
+	OUT_OF_STOCK(HttpStatus.CONFLICT, "PRODUCT_002", "재고가 부족하거나 주문할 수 없는 상품입니다."),
 	INVALID_PRODUCT_PRICE(HttpStatus.BAD_REQUEST, "PRODUCT_003", "상품 가격은 0원 이상이어야 합니다."),
 	INVALID_PRODUCT_STOCK(HttpStatus.BAD_REQUEST, "PRODUCT_004", "재고는 0개 이상이어야 합니다."),
 
